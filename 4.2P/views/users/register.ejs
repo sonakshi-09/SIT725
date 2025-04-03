@@ -1,0 +1,58 @@
+<%- include('../partials/header') %>
+
+<div class="section white">
+  <div class="container">
+    <div class="row">
+      <div class="col s12 m8 offset-m2 l6 offset-l3">
+        <div class="card">
+          <div class="card-content">
+            <span class="card-title center-align">Register</span>
+            <form action="/users/register" method="POST">
+              <div class="row">
+                <div class="input-field col s12">
+                  <i class="material-icons prefix">person</i>
+                  <input id="name" name="name" type="text" class="validate" value="<%= typeof name !== 'undefined' ? name : '' %>" required>
+                  <label for="name">Full Name</label>
+                </div>
+              </div>
+              <div class="row">
+                <div class="input-field col s12">
+                  <i class="material-icons prefix">email</i>
+                  <input id="email" name="email" type="email" class="validate" value="<%= typeof email !== 'undefined' ? email : '' %>" required>
+                  <label for="email">Email</label>
+                </div>
+              </div>
+              <div class="row">
+                <div class="input-field col s12">
+                  <i class="material-icons prefix">lock</i>
+                  <input id="password" name="password" type="password" class="validate" required>
+                  <label for="password">Password</label>
+                  <span class="helper-text">Password must be at least 6 characters</span>
+                </div>
+              </div>
+              <div class="row">
+                <div class="input-field col s12">
+                  <i class="material-icons prefix">lock</i>
+                  <input id="password2" name="password2" type="password" class="validate" required>
+                  <label for="password2">Confirm Password</label>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col s12 center-align">
+                  <button type="submit" class="btn-large waves-effect waves-light teal">
+                    Register <i class="material-icons right">send</i>
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+          <div class="card-action center-align">
+            <p>Already have an account? <a href="/users/login" class="teal-text">Login here</a></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('../partials/footer') %> 

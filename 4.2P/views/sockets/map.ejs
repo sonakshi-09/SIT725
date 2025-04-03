@@ -1,0 +1,240 @@
+<%- include('../partials/header') %>
+
+<div class="section teal darken-1 white-text">
+  <div class="container">
+    <div class="row">
+      <div class="col s12">
+        <h1>Socket Map</h1>
+        <p class="flow-text">Find power sockets near your location</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section white">
+  <div class="container">
+    <div class="row">
+      <div class="col s12">
+        <div class="card">
+          <div class="card-content">
+            <span class="card-title">Your Location</span>
+            <div class="row">
+              <div class="input-field col s12 m8">
+                <i class="material-icons prefix">location_on</i>
+                <input id="location-search" type="text" class="validate">
+                <label for="location-search">Enter an address or use current location</label>
+              </div>
+              <div class="col s12 m4">
+                <button id="get-location" class="btn waves-effect waves-light teal">
+                  <i class="material-icons left">my_location</i>
+                  Use My Location
+                </button>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col s12">
+                <p>
+                  <label>
+                    <input type="checkbox" id="available-only" checked />
+                    <span>Show only available sockets</span>
+                  </label>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col s12">
+        <div class="card">
+          <div class="card-content">
+            <div id="map-container" style="height: 500px;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Socket Info Modal -->
+<div id="socket-info-modal" class="modal">
+  <div class="modal-content">
+    <h4 id="modal-socket-name"></h4>
+    <div id="modal-socket-details"></div>
+  </div>
+  <div class="modal-footer">
+    <a href="#!" class="modal-close waves-effect waves-light btn-flat">Close</a>
+    <a id="view-details-btn" href="#" class="waves-effect waves-light btn teal">View Details</a>
+    <a id="reserve-btn" href="#" class="waves-effect waves-light btn teal lighten-2">Reserve</a>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Parse socket data from server
+    const socketsData = JSON.parse('<%= sockets %>');
+    
+    // Initialize map
+    const map = L.map('map-container').setView([40.7128, -74.0060], 13); // Default to NYC
+    
+    // Add tile layer (OpenStreetMap)
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+    
+    // Markers collection
+    const markers = [];
+    
+    // Add socket markers to map
+    function addMarkersToMap(showOnlyAvailable = true) {
+      // Clear existing markers
+      markers.forEach(marker => map.removeLayer(marker));
+      markers.length = 0;
+      
+      socketsData.forEach(socket => {
+        // Skip unavailable sockets if filter is active
+        if (showOnlyAvailable && !socket.isAvailable) {
+          return;
+        }
+        
+        const coordinates = socket.location.coordinates;
+        const markerColor = socket.isAvailable ? 'green' : 'red';
+        
+        // Create marker
+        const marker = L.marker([coordinates[1], coordinates[0]], {
+          title: socket.name,
+          icon: L.divIcon({
+            className: `socket-marker ${socket.isAvailable ? 'available' : 'unavailable'}`,
+            html: `<div style="background-color: ${markerColor}; width: 20px; height: 20px; border-radius: 50%; border: 2px solid white;"></div>`,
+            iconSize: [20, 20],
+            iconAnchor: [10, 10]
+          })
+        }).addTo(map);
+        
+        // Add popup with basic info
+        marker.bindPopup(`
+          <strong>${socket.name}</strong><br>
+          Power: ${socket.powerCapacity}W<br>
+          Status: ${socket.isAvailable ? 'Available' : 'Unavailable'}<br>
+          <a href="#socket-info-modal" class="modal-trigger view-more-btn" data-socket-id="${socket._id}">View More</a>
+        `);
+        
+        // Add click handler for marker
+        marker.on('click', function() {
+          // This will trigger when a user clicks directly on the marker
+          setTimeout(() => {
+            const popupLinks = document.querySelectorAll('.view-more-btn');
+            popupLinks.forEach(link => {
+              link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const socketId = this.dataset.socketId;
+                openSocketModal(socketId);
+              });
+            });
+          }, 100);
+        });
+        
+        markers.push(marker);
+      });
+    }
+    
+    // Initialize markers
+    addMarkersToMap(document.getElementById('available-only').checked);
+    
+    // Handle availability filter
+    document.getElementById('available-only').addEventListener('change', function() {
+      addMarkersToMap(this.checked);
+    });
+    
+    // Get user's current location
+    document.getElementById('get-location').addEventListener('click', function() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          position => {
+            const { latitude, longitude } = position.coords;
+            map.setView([latitude, longitude], 16);
+            
+            // Add a marker for user's location
+            L.marker([latitude, longitude], {
+              icon: L.divIcon({
+                className: 'user-location-marker',
+                html: '<div style="background-color: blue; width: 20px; height: 20px; border-radius: 50%; border: 2px solid white;"></div>',
+                iconSize: [20, 20],
+                iconAnchor: [10, 10]
+              })
+            }).addTo(map)
+            .bindPopup('Your Location')
+            .openPopup();
+            
+            // Find nearby sockets within 1km
+            getNearestSockets(latitude, longitude);
+          },
+          error => {
+            console.error('Error getting location:', error);
+            M.toast({html: 'Unable to get your location. Please allow location access.'});
+          }
+        );
+      } else {
+        M.toast({html: 'Geolocation is not supported by your browser.'});
+      }
+    });
+    
+    // Function to get nearest sockets from API
+    async function getNearestSockets(lat, lng) {
+      try {
+        const response = await fetch(`/sockets/nearby?lat=${lat}&lng=${lng}&maxDistance=1000`);
+        const data = await response.json();
+        
+        if (data.length === 0) {
+          M.toast({html: 'No sockets found within 1km of your location.'});
+        } else {
+          M.toast({html: `${data.length} socket(s) found nearby!`});
+        }
+      } catch (error) {
+        console.error('Error fetching nearby sockets:', error);
+      }
+    }
+    
+    // Function to open socket modal with details
+    function openSocketModal(socketId) {
+      const socket = socketsData.find(s => s._id === socketId);
+      if (!socket) return;
+      
+      const modalName = document.getElementById('modal-socket-name');
+      const modalDetails = document.getElementById('modal-socket-details');
+      const viewDetailsBtn = document.getElementById('view-details-btn');
+      const reserveBtn = document.getElementById('reserve-btn');
+      
+      modalName.textContent = socket.name;
+      
+      modalDetails.innerHTML = `
+        <p><i class="material-icons tiny">location_on</i> <strong>Address:</strong> ${socket.location.address}</p>
+        ${socket.location.floor ? `<p><i class="material-icons tiny">layers</i> <strong>Floor:</strong> ${socket.location.floor}</p>` : ''}
+        ${socket.location.room ? `<p><i class="material-icons tiny">meeting_room</i> <strong>Room:</strong> ${socket.location.room}</p>` : ''}
+        <p><i class="material-icons tiny">power</i> <strong>Power Capacity:</strong> ${socket.powerCapacity}W</p>
+        <p><i class="material-icons tiny">${socket.isAvailable ? 'check_circle' : 'cancel'}</i> <strong>Status:</strong> 
+          <span class="${socket.isAvailable ? 'green-text' : 'red-text'}">${socket.isAvailable ? 'Available' : 'Unavailable'}</span>
+        </p>
+      `;
+      
+      viewDetailsBtn.href = `/sockets/${socketId}`;
+      
+      // Check if socket is available and user is logged in
+      const userLoggedIn = <%= typeof currentUser !== 'undefined' && currentUser ? 'true' : 'false' %>;
+      
+      if (socket.isAvailable && userLoggedIn) {
+        reserveBtn.href = `/sockets/${socketId}`;
+        reserveBtn.style.display = 'inline-block';
+      } else {
+        reserveBtn.style.display = 'none';
+      }
+      
+      const modal = M.Modal.getInstance(document.getElementById('socket-info-modal'));
+      modal.open();
+    }
+  });
+</script> 

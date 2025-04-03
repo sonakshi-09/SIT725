@@ -1,0 +1,212 @@
+<%- include('../partials/header') %>
+
+<div class="section teal darken-1 white-text">
+  <div class="container">
+    <div class="row">
+      <div class="col s12">
+        <h1>My Profile</h1>
+        <p class="flow-text">Manage your account settings</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section white">
+  <div class="container">
+    <div class="row">
+      <div class="col s12 m8 offset-m2">
+        <div class="card">
+          <div class="card-content">
+            <span class="card-title">Account Information</span>
+            <form id="profile-form">
+              <div class="row">
+                <div class="input-field col s12">
+                  <i class="material-icons prefix">person</i>
+                  <input id="name" name="name" type="text" class="validate" value="<%= user.name %>" required>
+                  <label for="name" class="active">Full Name</label>
+                </div>
+              </div>
+              <div class="row">
+                <div class="input-field col s12">
+                  <i class="material-icons prefix">email</i>
+                  <input id="email" name="email" type="email" class="validate" value="<%= user.email %>" required>
+                  <label for="email" class="active">Email</label>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col s12 center-align">
+                  <button type="submit" class="btn waves-effect waves-light teal">
+                    Update Profile <i class="material-icons right">save</i>
+                  </button>
+                </div>
+              </div>
+              <div id="update-message"></div>
+            </form>
+          </div>
+        </div>
+        
+        <div class="card">
+          <div class="card-content">
+            <span class="card-title">Account Actions</span>
+            <div class="collection">
+              <a href="/reservations" class="collection-item">View My Reservations</a>
+              <a href="#change-password-modal" class="collection-item modal-trigger">Change Password</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Change Password Modal -->
+<div id="change-password-modal" class="modal">
+  <div class="modal-content">
+    <h4>Change Password</h4>
+    <form id="change-password-form">
+      <div class="row">
+        <div class="input-field col s12">
+          <input id="current-password" name="currentPassword" type="password" class="validate" required>
+          <label for="current-password">Current Password</label>
+        </div>
+      </div>
+      <div class="row">
+        <div class="input-field col s12">
+          <input id="new-password" name="newPassword" type="password" class="validate" required>
+          <label for="new-password">New Password</label>
+          <span class="helper-text">Password must be at least 6 characters</span>
+        </div>
+      </div>
+      <div class="row">
+        <div class="input-field col s12">
+          <input id="confirm-password" name="confirmPassword" type="password" class="validate" required>
+          <label for="confirm-password">Confirm New Password</label>
+        </div>
+      </div>
+      <div id="password-update-message"></div>
+    </form>
+  </div>
+  <div class="modal-footer">
+    <a href="#!" class="modal-close waves-effect waves-light btn-flat">Cancel</a>
+    <button type="submit" form="change-password-form" class="waves-effect waves-light btn teal">Update Password</button>
+  </div>
+</div>
+
+<div class="container mt-4">
+  <h1>Welcome, <%= user.name %></h1>
+  
+  <div class="row mt-4">
+    <div class="col-md-4">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">Profile Information</h5>
+          <p><strong>Name:</strong> <%= user.name %></p>
+          <p><strong>Email:</strong> <%= user.email %></p>
+          <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editProfileModal">
+            Edit Profile
+          </button>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-md-8">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">Your Reservations</h5>
+          <% if (reservations && reservations.length > 0) { %>
+            <div class="table-responsive">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Socket Location</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% reservations.forEach(reservation => { %>
+                    <tr>
+                      <td><%= reservation.socket.location %></td>
+                      <td><%= new Date(reservation.date).toLocaleDateString() %></td>
+                      <td><%= reservation.status %></td>
+                      <td>
+                        <a href="/reservations/<%= reservation._id %>" class="btn btn-sm btn-info">View</a>
+                      </td>
+                    </tr>
+                  <% }) %>
+                </tbody>
+              </table>
+            </div>
+          <% } else { %>
+            <p>No reservations found.</p>
+            <a href="/sockets" class="btn btn-primary">Find Available Sockets</a>
+          <% } %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Profile Modal -->
+<div class="modal fade" id="editProfileModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Edit Profile</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form action="/users/profile" method="POST">
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="name" class="form-label">Name</label>
+            <input type="text" class="form-control" id="name" name="name" value="<%= user.name %>">
+          </div>
+          <div class="mb-3">
+            <label for="email" class="form-label">Email</label>
+            <input type="email" class="form-control" id="email" name="email" value="<%= user.email %>">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-primary">Save changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>
+
+<script>
+  // Update Profile AJAX
+  document.getElementById('profile-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const name = document.getElementById('name').value;
+    const email = document.getElementById('email').value;
+    const messageDiv = document.getElementById('update-message');
+    
+    try {
+      const response = await fetch('/users/profile', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ name, email })
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok) {
+        messageDiv.innerHTML = `<div class="card-panel green lighten-4"><span class="green-text text-darken-4">${data.msg}</span></div>`;
+      } else {
+        messageDiv.innerHTML = `<div class="card-panel red lighten-4"><span class="red-text text-darken-4">${data.errors[0].msg}</span></div>`;
+      }
+    } catch (err) {
+      messageDiv.innerHTML = `<div class="card-panel red lighten-4"><span class="red-text text-darken-4">An error occurred. Please try again.</span></div>`;
+    }
+  });
+  
+  // Password update functionality would be implemented similarly
+</script>

@@ -1,0 +1,251 @@
+<%- include('../partials/header') %>
+
+<div class="section teal darken-1 white-text">
+  <div class="container">
+    <div class="row">
+      <div class="col s12">
+        <h1>Available Sockets</h1>
+        <p class="flow-text">Find and reserve power sockets in your area</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section white">
+  <div class="container">
+    <div class="row">
+      <div class="col s12">
+        <div class="card">
+          <div class="card-content">
+            <span class="card-title">Filter Sockets</span>
+            <div class="row">
+              <div class="input-field col s12 m6">
+                <i class="material-icons prefix">search</i>
+                <input id="search" type="text" class="validate">
+                <label for="search">Search by name or location</label>
+              </div>
+              <div class="input-field col s12 m6">
+                <i class="material-icons prefix">power</i>
+                <select id="power-filter">
+                  <option value="" selected>All power capacities</option>
+                  <option value="low">Low (< 100W)</option>
+                  <option value="medium">Medium (100W - 500W)</option>
+                  <option value="high">High (> 500W)</option>
+                </select>
+                <label>Power Capacity</label>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col s12">
+                <p>
+                  <label>
+                    <input type="checkbox" id="available-only" checked />
+                    <span>Show only available sockets</span>
+                  </label>
+                </p>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col s12 center-align">
+                <a href="/sockets/map" class="btn waves-effect waves-light teal">
+                  <i class="material-icons left">map</i>
+                  View on Map
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col s12">
+        <% if (sockets && sockets.length > 0) { %>
+          <div class="socket-list">
+            <% sockets.forEach(function(socket) { %>
+              <div class="card horizontal socket-card <%= socket.isAvailable ? 'available' : 'unavailable' %>" data-power="<%= socket.powerCapacity %>" data-name="<%= socket.name.toLowerCase() %>" data-location="<%= socket.location.address.toLowerCase() %>">
+                <div class="card-stacked">
+                  <div class="card-content">
+                    <span class="card-title"><%= socket.name %></span>
+                    <div class="row">
+                      <div class="col s12 m8">
+                        <p><i class="material-icons tiny">location_on</i> <%= socket.location.address %></p>
+                        <% if (socket.location.floor) { %>
+                          <p><i class="material-icons tiny">layers</i> Floor: <%= socket.location.floor %></p>
+                        <% } %>
+                        <% if (socket.location.room) { %>
+                          <p><i class="material-icons tiny">meeting_room</i> Room: <%= socket.location.room %></p>
+                        <% } %>
+                        <p><i class="material-icons tiny">power</i> Power: <%= socket.powerCapacity %> W</p>
+                        <p>
+                          <i class="material-icons tiny"><%= socket.isAvailable ? 'check_circle' : 'cancel' %></i>
+                          Status: <span class="<%= socket.isAvailable ? 'green-text' : 'red-text' %>"><%= socket.isAvailable ? 'Available' : 'Unavailable' %></span>
+                        </p>
+                      </div>
+                      <div class="col s12 m4 center-align">
+                        <a href="/sockets/<%= socket._id %>" class="btn waves-effect waves-light teal">
+                          View Details
+                        </a>
+                        <% if (socket.isAvailable && typeof currentUser !== 'undefined' && currentUser) { %>
+                          <a href="#reserve-modal" class="btn waves-effect waves-light teal lighten-2 modal-trigger reserve-btn" data-socket-id="<%= socket._id %>" data-socket-name="<%= socket.name %>">
+                            Reserve
+                          </a>
+                        <% } %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            <% }); %>
+          </div>
+        <% } else { %>
+          <div class="card-panel">
+            <p class="center-align">No sockets available at the moment.</p>
+          </div>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Reservation Modal -->
+<div id="reserve-modal" class="modal">
+  <div class="modal-content">
+    <h4>Reserve Socket: <span id="socket-name"></span></h4>
+    <form id="reservation-form">
+      <input type="hidden" id="socket-id" name="socketId">
+      <div class="row">
+        <div class="input-field col s12 m6">
+          <input id="reservation-date" type="text" class="datepicker">
+          <label for="reservation-date">Date</label>
+        </div>
+        <div class="input-field col s12 m3">
+          <input id="start-time" type="text" class="timepicker">
+          <label for="start-time">Start Time</label>
+        </div>
+        <div class="input-field col s12 m3">
+          <input id="end-time" type="text" class="timepicker">
+          <label for="end-time">End Time</label>
+        </div>
+      </div>
+      <div id="reservation-message"></div>
+    </form>
+  </div>
+  <div class="modal-footer">
+    <a href="#!" class="modal-close waves-effect waves-light btn-flat">Cancel</a>
+    <button type="button" id="submit-reservation" class="waves-effect waves-light btn teal">Make Reservation</button>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>
+
+<script>
+  // Socket filtering functionality
+  document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('search');
+    const powerFilter = document.getElementById('power-filter');
+    const availableOnly = document.getElementById('available-only');
+    const socketCards = document.querySelectorAll('.socket-card');
+    
+    function filterSockets() {
+      const searchTerm = searchInput.value.toLowerCase();
+      const powerValue = powerFilter.value;
+      const showOnlyAvailable = availableOnly.checked;
+      
+      socketCards.forEach(card => {
+        const name = card.dataset.name;
+        const location = card.dataset.location;
+        const power = parseInt(card.dataset.power);
+        const isAvailable = card.classList.contains('available');
+        
+        // Filter by search term (name or location)
+        const matchesSearch = name.includes(searchTerm) || location.includes(searchTerm) || searchTerm === '';
+        
+        // Filter by power capacity
+        let matchesPower = true;
+        if (powerValue === 'low') {
+          matchesPower = power < 100;
+        } else if (powerValue === 'medium') {
+          matchesPower = power >= 100 && power <= 500;
+        } else if (powerValue === 'high') {
+          matchesPower = power > 500;
+        }
+        
+        // Filter by availability
+        const matchesAvailability = !showOnlyAvailable || isAvailable;
+        
+        // Show or hide based on all filters
+        if (matchesSearch && matchesPower && matchesAvailability) {
+          card.style.display = 'block';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    }
+    
+    // Add event listeners
+    searchInput.addEventListener('input', filterSockets);
+    powerFilter.addEventListener('change', filterSockets);
+    availableOnly.addEventListener('change', filterSockets);
+    
+    // Handle reservation modal
+    const reserveBtns = document.querySelectorAll('.reserve-btn');
+    const socketNameSpan = document.getElementById('socket-name');
+    const socketIdInput = document.getElementById('socket-id');
+    
+    reserveBtns.forEach(btn => {
+      btn.addEventListener('click', function() {
+        const socketId = this.dataset.socketId;
+        const socketName = this.dataset.socketName;
+        
+        socketNameSpan.textContent = socketName;
+        socketIdInput.value = socketId;
+      });
+    });
+    
+    // Handle reservation submission
+    document.getElementById('submit-reservation').addEventListener('click', async function() {
+      const socketId = document.getElementById('socket-id').value;
+      const reservationDate = document.getElementById('reservation-date').value;
+      const startTime = document.getElementById('start-time').value;
+      const endTime = document.getElementById('end-time').value;
+      const messageDiv = document.getElementById('reservation-message');
+      
+      if (!reservationDate || !startTime || !endTime) {
+        messageDiv.innerHTML = `<div class="card-panel red lighten-4"><span class="red-text text-darken-4">Please fill all fields</span></div>`;
+        return;
+      }
+      
+      // Format start and end times
+      const startDateTime = new Date(`${reservationDate} ${startTime}`);
+      const endDateTime = new Date(`${reservationDate} ${endTime}`);
+      
+      try {
+        const response = await fetch('/reservations', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            socketId,
+            startTime: startDateTime.toISOString(),
+            endTime: endDateTime.toISOString()
+          })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+          messageDiv.innerHTML = `<div class="card-panel green lighten-4"><span class="green-text text-darken-4">${data.msg}</span></div>`;
+          setTimeout(() => {
+            window.location.href = '/reservations';
+          }, 2000);
+        } else {
+          messageDiv.innerHTML = `<div class="card-panel red lighten-4"><span class="red-text text-darken-4">${data.msg || 'Error creating reservation'}</span></div>`;
+        }
+      } catch (err) {
+        messageDiv.innerHTML = `<div class="card-panel red lighten-4"><span class="red-text text-darken-4">An error occurred. Please try again.</span></div>`;
+      }
+    });
+  });
+</script> 

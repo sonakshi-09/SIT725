@@ -1,0 +1,66 @@
+<%- include('partials/header') %>
+
+<div class="section teal darken-1 white-text">
+  <div class="container">
+    <div class="row">
+      <div class="col s12">
+        <h1>Dashboard</h1>
+        <p class="flow-text">Welcome, <%= currentUser.name %>!</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section white">
+  <div class="container">
+    <div class="row">
+      <div class="col s12 m6">
+        <div class="card">
+          <div class="card-content">
+            <span class="card-title">Quick Actions</span>
+            <div class="collection">
+              <a href="/sockets" class="collection-item">Find Available Sockets</a>
+              <a href="/sockets/map" class="collection-item">View Socket Map</a>
+              <a href="/reservations" class="collection-item">My Reservations</a>
+              <a href="/users/profile" class="collection-item">My Profile</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col s12 m6">
+        <div class="card">
+          <div class="card-content">
+            <span class="card-title">Recent Activity</span>
+            <p>View your recent activity and reservations.</p>
+            <div id="recent-activity">
+              <!-- This would be populated with AJAX in a real application -->
+              <p class="center-align">
+                <a href="/reservations" class="btn waves-effect waves-light teal">View All Reservations</a>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <% if (currentUser.role === 'admin') { %>
+      <div class="row">
+        <div class="col s12">
+          <div class="card teal lighten-5">
+            <div class="card-content">
+              <span class="card-title">Admin Controls</span>
+              <p>Special controls for administrators.</p>
+              <div class="collection">
+                <a href="/sockets/admin/manage" class="collection-item">Manage Sockets</a>
+                <a href="/reservations/admin/all" class="collection-item">View All Reservations</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% } %>
+  </div>
+</div>
+
+<%- include('partials/footer') %> 

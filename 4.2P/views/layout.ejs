@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title><%= title %> | Locate a Socket</title>
+  <meta name="description" content="<%= description %>">
+  
+  <!-- Materialize CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+  <!-- Material Icons -->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="/css/style.css">
+  
+  <!-- If page needs map -->
+  <% if (typeof mapRequired !== 'undefined' && mapRequired) { %>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+  <% } %>
+</head>
+<body>
+  <!-- Navbar -->
+  <div class="navbar-fixed">
+    <nav class="teal darken-2">
+      <div class="nav-wrapper container">
+        <a href="/" class="brand-logo">Locate a Socket</a>
+        <a href="#" data-target="mobile-nav" class="sidenav-trigger"><i class="material-icons">menu</i></a>
+        <ul class="right hide-on-med-and-down">
+          <li><a href="/">Home</a></li>
+          <li><a href="/sockets">Available Sockets</a></li>
+          <li><a href="/sockets/map">Socket Map</a></li>
+          
+          <% if (typeof currentUser !== 'undefined' && currentUser) { %>
+            <li><a href="/reservations">My Reservations</a></li>
+            <li><a href="/dashboard">Dashboard</a></li>
+            <% if (currentUser.role === 'admin') { %>
+              <li><a href="/sockets/admin/manage">Manage Sockets</a></li>
+              <li><a href="/reservations/admin/all">All Reservations</a></li>
+            <% } %>
+            <li><a href="/users/profile">Profile</a></li>
+            <li><a href="/users/logout">Logout</a></li>
+          <% } else { %>
+            <li><a href="/users/login">Login</a></li>
+            <li><a href="/users/register">Register</a></li>
+          <% } %>
+        </ul>
+      </div>
+    </nav>
+  </div>
+
+  <!-- Mobile Navbar -->
+  <ul class="sidenav" id="mobile-nav">
+    <li><a href="/">Home</a></li>
+    <li><a href="/sockets">Available Sockets</a></li>
+    <li><a href="/sockets/map">Socket Map</a></li>
+    
+    <% if (typeof currentUser !== 'undefined' && currentUser) { %>
+      <li><a href="/reservations">My Reservations</a></li>
+      <li><a href="/dashboard">Dashboard</a></li>
+      <% if (currentUser.role === 'admin') { %>
+        <li><a href="/sockets/admin/manage">Manage Sockets</a></li>
+        <li><a href="/reservations/admin/all">All Reservations</a></li>
+      <% } %>
+      <li><a href="/users/profile">Profile</a></li>
+      <li><a href="/users/logout">Logout</a></li>
+    <% } else { %>
+      <li><a href="/users/login">Login</a></li>
+      <li><a href="/users/register">Register</a></li>
+    <% } %>
+  </ul>
+
+  <!-- Messages -->
+  <% if(typeof success_msg !== 'undefined' && success_msg.length > 0) { %>
+    <div class="container">
+      <div class="card-panel green lighten-4">
+        <span class="green-text text-darken-4"><%= success_msg %></span>
+      </div>
+    </div>
+  <% } %>
+
+  <% if(typeof error_msg !== 'undefined' && error_msg.length > 0) { %>
+    <div class="container">
+      <div class="card-panel red lighten-4">
+        <span class="red-text text-darken-4"><%= error_msg %></span>
+      </div>
+    </div>
+  <% } %>
+
+  <% if(typeof errors !== 'undefined' && errors.length > 0) { %>
+    <div class="container">
+      <div class="card-panel red lighten-4">
+        <ul>
+          <% errors.forEach(function(error) { %>
+            <li class="red-text text-darken-4"><%= error.msg %></li>
+          <% }); %>
+        </ul>
+      </div>
+    </div>
+  <% } %>
+
+  <!-- Main Content -->
+  <main>
+    <%- body %>
+  </main>
+
+  <!-- Footer -->
+  <footer class="page-footer teal darken-2">
+    <div class="container">
+      <div class="row">
+        <div class="col l6 s12">
+          <h5 class="white-text">Locate a Socket</h5>
+          <p class="grey-text text-lighten-4">Find and reserve power sockets near you.</p>
+        </div>
+        <div class="col l4 offset-l2 s12">
+          <h5 class="white-text">Links</h5>
+          <ul>
+            <li><a class="grey-text text-lighten-3" href="/about">About Us</a></li>
+            <li><a class="grey-text text-lighten-3" href="/sockets">Find Sockets</a></li>
+            <li><a class="grey-text text-lighten-3" href="/sockets/map">Socket Map</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="footer-copyright">
+      <div class="container">
+        © <%= new Date().getFullYear() %> Locate a Socket
+      </div>
+    </div>
+  </footer>
+
+  <!-- Materialize JS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+  <!-- jQuery (required for some Materialize functionality) -->
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <!-- Custom JavaScript -->
+  <script src="/js/main.js"></script>
+
+  <!-- Initialize Materialize components -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Initialize sidenav
+      var elems = document.querySelectorAll('.sidenav');
+      var instances = M.Sidenav.init(elems);
+      
+      // Initialize dropdowns
+      var dropdowns = document.querySelectorAll('.dropdown-trigger');
+      var instances = M.Dropdown.init(dropdowns);
+      
+      // Initialize modals
+      var modals = document.querySelectorAll('.modal');
+      var instances = M.Modal.init(modals);
+      
+      // Initialize select
+      var selects = document.querySelectorAll('select');
+      var instances = M.FormSelect.init(selects);
+      
+      // Initialize datepickers
+      var datepickers = document.querySelectorAll('.datepicker');
+      var instances = M.Datepicker.init(datepickers, {
+        format: 'yyyy-mm-dd',
+        defaultDate: new Date(),
+        setDefaultDate: true
+      });
+      
+      // Initialize timepickers
+      var timepickers = document.querySelectorAll('.timepicker');
+      var instances = M.Timepicker.init(timepickers);
+    });
+  </script>
+  
+  <!-- Page-specific scripts -->
+  <% if (typeof pageScript !== 'undefined') { %>
+    <%- pageScript %>
+  <% } %>
+</body>
+</html> 

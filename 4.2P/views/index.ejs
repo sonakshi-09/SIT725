@@ -1,0 +1,119 @@
+<%- include('partials/header') %>
+
+<div class="section teal darken-1 white-text">
+  <div class="container">
+    <div class="row">
+      <div class="col s12 m8 offset-m2 center-align">
+        <h1>Find Power Sockets Near You</h1>
+        <p class="flow-text">Locate, view details, and reserve power sockets in your area with ease.</p>
+        <div class="row">
+          <a href="/sockets" class="btn-large waves-effect waves-light white teal-text text-darken-1">Find Sockets</a>
+          <a href="/sockets/map" class="btn-large waves-effect waves-light teal lighten-3">View Map</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section white">
+  <div class="container">
+    <div class="row">
+      <div class="col s12 center-align">
+        <h2 class="teal-text text-darken-2">How It Works</h2>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col s12 m4">
+        <div class="card">
+          <div class="card-content center-align">
+            <i class="large material-icons teal-text text-darken-1">search</i>
+            <h4>Find</h4>
+            <p>Search for available power sockets near your location using our interactive map or list view.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="col s12 m4">
+        <div class="card">
+          <div class="card-content center-align">
+            <i class="large material-icons teal-text text-darken-1">info</i>
+            <h4>View Details</h4>
+            <p>Check power capacity, availability, and location information before making your decision.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="col s12 m4">
+        <div class="card">
+          <div class="card-content center-align">
+            <i class="large material-icons teal-text text-darken-1">event</i>
+            <h4>Reserve</h4>
+            <p>Book a socket for the time you need it and ensure it's available when you arrive.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section teal lighten-5">
+  <div class="container">
+    <div class="row">
+      <div class="col s12 center-align">
+        <h2 class="teal-text text-darken-2">Why Use Locate a Socket?</h2>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col s12 m6">
+        <ul class="collection">
+          <li class="collection-item avatar">
+            <i class="material-icons circle teal">access_time</i>
+            <span class="title">Save Time</span>
+            <p>No more wandering around looking for a place to charge your devices.</p>
+          </li>
+          <li class="collection-item avatar">
+            <i class="material-icons circle teal">security</i>
+            <span class="title">Reliable Information</span>
+            <p>All sockets are verified and regularly updated for availability.</p>
+          </li>
+        </ul>
+      </div>
+
+      <div class="col s12 m6">
+        <ul class="collection">
+          <li class="collection-item avatar">
+            <i class="material-icons circle teal">event_available</i>
+            <span class="title">Easy Reservations</span>
+            <p>Book in advance and never worry about finding a place to charge.</p>
+          </li>
+          <li class="collection-item avatar">
+            <i class="material-icons circle teal">public</i>
+            <span class="title">Expanding Network</span>
+            <p>Our socket network is growing daily with new locations being added.</p>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<% if (typeof currentUser === 'undefined' || !currentUser) { %>
+  <div class="section white">
+    <div class="container">
+      <div class="row">
+        <div class="col s12 center-align">
+          <h3 class="teal-text text-darken-2">Ready to get started?</h3>
+          <p class="flow-text">Create an account to start reserving sockets today.</p>
+          <div class="row">
+            <a href="/users/register" class="btn-large waves-effect waves-light teal darken-1">Register Now</a>
+            <a href="/users/login" class="btn-large waves-effect waves-light teal lighten-3">Login</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<% } %>
+
+<%- include('partials/footer') %> 

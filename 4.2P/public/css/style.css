@@ -1,0 +1,168 @@
+/* Main Styling */
+body {
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+}
+
+main {
+  flex: 1 0 auto;
+}
+
+/* Navigation */
+.brand-logo {
+  margin-left: 10px;
+}
+
+/* Socket Cards */
+.socket-card {
+  transition: all 0.3s ease;
+  margin-bottom: 1rem;
+}
+
+.socket-card:hover {
+  box-shadow: 0 8px 17px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+
+.socket-card.unavailable {
+  opacity: 0.7;
+}
+
+/* Map Styling */
+#map-container {
+  width: 100%;
+  height: 500px;
+  border-radius: 2px;
+}
+
+.socket-marker {
+  cursor: pointer;
+}
+
+.socket-marker.available {
+  z-index: 1000;
+}
+
+.socket-marker.unavailable {
+  z-index: 900;
+}
+
+.user-location-marker {
+  z-index: 1100;
+}
+
+/* Form Styling */
+.input-field .prefix {
+  top: 0.5rem;
+}
+
+/* Reservation Items */
+.reservation-item {
+  padding: 15px;
+  border-radius: 2px;
+  margin-bottom: 1rem;
+}
+
+.reservation-item.upcoming {
+  border-left: 4px solid #26a69a;
+}
+
+.reservation-item.past {
+  border-left: 4px solid #bdbdbd;
+  opacity: 0.7;
+}
+
+.reservation-item.cancelled {
+  border-left: 4px solid #ef5350;
+  opacity: 0.7;
+}
+
+/* Status Badges */
+.status-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  color: white;
+  margin-right: 5px;
+}
+
+.status-badge.confirmed {
+  background-color: #26a69a;
+}
+
+.status-badge.pending {
+  background-color: #ffb74d;
+}
+
+.status-badge.completed {
+  background-color: #9e9e9e;
+}
+
+.status-badge.cancelled {
+  background-color: #ef5350;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 600px) {
+  h1 {
+    font-size: 2.5rem;
+  }
+  
+  h2 {
+    font-size: 2rem;
+  }
+  
+  .container {
+    width: 95%;
+  }
+}
+
+/* Utility Classes */
+.mt-1 {
+  margin-top: 1rem;
+}
+
+.mt-2 {
+  margin-top: 2rem;
+}
+
+.mb-1 {
+  margin-bottom: 1rem;
+}
+
+.mb-2 {
+  margin-bottom: 2rem;
+}
+
+.center-text {
+  text-align: center;
+}
+
+/* Animation */
+.fade-in {
+  animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.card {
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  margin-bottom: 1rem;
+}
+
+.table-responsive {
+  margin-top: 1rem;
+}
+
+.btn-sm {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.875rem;
+}
